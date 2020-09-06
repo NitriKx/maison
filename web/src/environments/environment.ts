@@ -18,7 +18,7 @@ export const environment = {
   production: false,
   firebase: {
     apiKey: "AIzaSyCWZ154_23cPQEcHdKenSmnOJbjNTffJiY",
-    authDomain: "home-iot-286610.firebaseapp.com",
+    authDomain: "home-iot-286610.web.app",
     databaseURL: "https://home-iot-286610.firebaseio.com/",
     projectId: "home-iot-286610",
     storageBucket: "home-iot-286610.appspot.com",
