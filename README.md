@@ -1,4 +1,6 @@
-# Smart Home Device Manager
+# Maison
+
+Forked from GoogleCloudPlatform/iot-smart-home-cloud.
 
 This projects contains sample code that demonstrates the use of
 [Firebase](https://firebase.google.com) and Google

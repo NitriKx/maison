@@ -38,6 +38,9 @@ class Device {
         return new LightDevice(id, data);
       case 'thermostat':
         return new ThermostatDevice(id, data);
+      case 'door':
+        console.log("Data is " + JSON.stringify(data));
+        return new DoorDevice(id, data);
       default:
         throw new Error(`Invalid device type found in ${id}: ${data.type}`);
     }
@@ -61,6 +64,9 @@ class Device {
           break;
         case 'action.devices.commands.ThermostatSetMode':
           state['value.mode'] = item.params.thermostatMode;
+          break;
+        case 'action.devices.commands.OpenClose':
+          state['value.openPercent'] = item.params.openPercent;
           break;
         default:
           throw new Error(`Invalid command received: ${item.command}`);
@@ -130,5 +136,35 @@ class ThermostatDevice extends Device {
     };
   }
 };
+
+
+class DoorDevice extends Device {
+  get metadata() {
+    return {
+      id: this.id,
+      type: 'action.devices.types.DOOR',
+      traits: [
+        'action.devices.traits.OpenClose'
+      ],
+      attributes: {
+        discreteOnlyOpenClose: true,
+        commandOnlyOpenClose: false,
+        queryOnlyOpenClose: false
+      },
+      name: {
+        name: this.name
+      },
+      willReportState: true
+    };
+  }
+
+  get reportState() {
+    return {
+      online: this.online,
+      openPercent: this.state.openPercent
+    };
+  }
+};
+
 
 module.exports = Device;

@@ -41,7 +41,7 @@ module.exports = functions.firestore.document('devices/{device}').onUpdate(async
   // Send a state report
   const report = {};
   report[device.id] = device.reportState;
-  console.log('Sending state report', report);
+  console.log('Sending state report to HomeGraph ', report, '...');
   await homegraph.reportState({
     requestId: uuid(),
     agentUserId: device.owner,

@@ -21,13 +21,15 @@ const { firestore } = require('../admin');
  * Cloud Function: Handle device state updates
  */
 module.exports = functions.pubsub.topic('device-events').onPublish(async (message) => {
+  console.log('Received message: ' + JSON.stringify(message));
   const deviceId = message.attributes.deviceId;
 
   // Write the device state into firestore
   const deviceRef = firestore.doc(`devices/${deviceId}`);
   try {
     // Ensure the device is also marked as 'online' when state is updated
-    await deviceRef.update({ 'state': message.json, 'online': true });
+    const state = JSON.parse(Buffer.from(message.data, 'base64').toString());
+    await deviceRef.update({ 'state': state, 'online': true });
     console.log(`State updated for ${deviceId}`);
   } catch (error) {
     console.error(`${deviceId} not yet registered to a user`, error);

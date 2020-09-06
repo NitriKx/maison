@@ -24,7 +24,7 @@ const { firestore } = require('../admin');
 function getDevice(client, deviceId) {
   return new Promise((resolve, reject) => {
     const projectId = process.env.GCLOUD_PROJECT;
-    const parentName = `projects/${projectId}/locations/${functions.config().cloudiot.region}`;
+    const parentName = `projects/${projectId}/locations/europe-west1`;
     const registryName = `${parentName}/registries/${functions.config().cloudiot.registry}`;
 
     const request = {
@@ -97,6 +97,9 @@ module.exports = functions.firestore.document('pending/{device}').onWrite(async 
       case 'light':
         configValue = require('./default-light.json');
         break;
+      case 'door':
+        configValue = require('./default-door.json');
+        break;
       case 'thermostat':
         configValue = require('./default-thermostat.json');
         break;
@@ -109,7 +112,8 @@ module.exports = functions.firestore.document('pending/{device}').onWrite(async 
 
     // Insert valid device for the requested owner
     const device = {
-      name: pending.serial_number,
+      name: pending.name,
+      serial_number: pending.serial_number,
       owner: pending.owner,
       type: pending.type,
       online: false

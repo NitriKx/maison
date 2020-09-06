@@ -52,8 +52,10 @@ export class LinkAccountComponent implements OnInit {
   redirectUri: string;
   state: string;
   idToken: string;
-  constructor(private authService: AngularFireAuth,
-    private route: ActivatedRoute) { }
+  constructor(public authService: AngularFireAuth, public route: ActivatedRoute) {
+    this.authService = authService;
+    this.route = route;
+  }
 
   ngOnInit() {
     this.authService.idToken.subscribe((token) => {

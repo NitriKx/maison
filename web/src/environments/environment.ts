@@ -16,6 +16,13 @@
 
 export const environment = {
   production: false,
-  // TODO: ADD YOUR FIREBASE APP CONFIG HERE
-  // TODO: ADD YOUR SMART HOME CLIENT ID HERE
+  firebase: {
+    apiKey: "AIzaSyCWZ154_23cPQEcHdKenSmnOJbjNTffJiY",
+    authDomain: "home-iot-286610.firebaseapp.com",
+    databaseURL: "https://home-iot-286610.firebaseio.com/",
+    projectId: "home-iot-286610",
+    storageBucket: "home-iot-286610.appspot.com",
+    messagingSenderId: "597252924814"
+  },
+  clientId: "google-client-id"
 };

@@ -73,10 +73,13 @@ class _RegisterDeviceState extends State<RegisterDeviceScreen> {
 
     try {
       // Run detection and check for the proper QR code
+      print("Processing image...");
       final List<Barcode> barcodes = await _detector.detectInImage(firebaseImage);
       if (barcodes.isEmpty) {
+        print("Barcode empty");
         _reportDetectionState(DetectionState.empty);
       } else {
+        print("Barcode detected");
         final Map<String, dynamic> device = await _handleBarcodeResult(barcodes[0]);
         _barcodeDetected = true;
         _reportDetectionState(DetectionState.detected);
@@ -123,7 +126,7 @@ class _RegisterDeviceState extends State<RegisterDeviceScreen> {
         (CameraDescription camera) => camera.lensDirection == CameraLensDirection.back,
         orElse: () => cameras.first);
 
-      _controller = CameraController(selected, ResolutionPreset.low);
+      _controller = CameraController(selected, ResolutionPreset.max);
       _controller.initialize().then((_) {
         if (!mounted) {
           return;

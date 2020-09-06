@@ -23,7 +23,7 @@ const { google } = require('googleapis');
 function updateConfig(client, deviceId, config) {
   return new Promise((resolve, reject) => {
     const projectId = process.env.GCLOUD_PROJECT;
-    const parentName = `projects/${projectId}/locations/${functions.config().cloudiot.region}`;
+    const parentName = `projects/${projectId}/locations/europe-west1`;
     const registryName = `${parentName}/registries/${functions.config().cloudiot.registry}`;
 
     const request = {

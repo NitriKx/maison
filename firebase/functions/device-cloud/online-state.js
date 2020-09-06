@@ -27,10 +27,18 @@ module.exports = functions.pubsub.topic('online-state').onPublish(async (message
   let online;
   switch (logEntry.jsonPayload.eventType) {
     case 'CONNECT':
+      console.log("Device ", deviceId, " is online")
       online = true;
       break;
     case 'DISCONNECT':
-      online = false;
+      // If the disconnect event is "ALREADY_EXISTS" that means that the device is still online
+      if (logEntry.jsonPayload.status.description != "ALREADY_EXISTS") {
+        console.log("Device ", deviceId, " is disconnected")
+        online = false; 
+      } else {
+        console.log("Device ", deviceId, " multiple connection (considered as online)")
+        online = true;
+      }
       break;
     default:
       throw new Error(`Invalid event type received from IoT Core: ${logEntry.jsonPayload.eventType}`);

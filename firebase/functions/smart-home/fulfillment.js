@@ -17,10 +17,34 @@
 const functions = require('firebase-functions');
 const { firestore } = require('../admin');
 const { smarthome } = require('actions-on-google');
+const { google } = require('googleapis');
 const Device = require('./device-model');
 const jwt = require('jsonwebtoken');
 
 const fulfillment = smarthome();
+
+/**
+ * Return a promise to publish the new device config to Cloud IoT Core
+ */
+function sendCommand(client, deviceId, command) {
+  return new Promise((resolve, reject) => {
+    const projectId = process.env.GCLOUD_PROJECT;
+    const parentName = `projects/${projectId}/locations/europe-west1`;
+    const registryName = `${parentName}/registries/${functions.config().cloudiot.registry}`;
+
+    const request = {
+      name: `${registryName}/devices/${deviceId}`,
+      binaryData: Buffer.from(JSON.stringify(command)).toString('base64')
+    };
+    client.projects.locations.registries.devices.sendCommandToDevice(request, (err, resp) => {
+      if (err) {
+        return reject(err);
+      } else {
+        resolve(resp.data);
+      }
+    });
+  });
+}
 
 /**
  * SYNC Intent Handler
@@ -60,6 +84,7 @@ fulfillment.onSync(async (body, headers) => {
  */
 fulfillment.onQuery(async (body, headers) => {
   try {
+    console.log("Body is " + JSON.stringify(body))
     validateCredentials(headers);
 
     const deviceSet = {};
@@ -97,16 +122,25 @@ fulfillment.onExecute(async (body, headers) => {
     validateCredentials(headers);
     // Update the device configs for each requested id
     const command = body.inputs[0].payload.commands[0];
-    console.log('EXECUTE Request', command);
-    // Apply the state update to each device
-    const update = Device.stateFromExecution(command.execution);
-    const batch = firestore.batch();
-    command.devices.forEach(target => {
-      const configRef = firestore.doc(`device-configs/${target.id}`);
-      batch.update(configRef, update);
-    });
-    await batch.commit();
+    const commandParams = command.execution[0].params;
+    console.log('EXECUTE Request', JSON.stringify(body));
+    console.log('First command is ', JSON.stringify(command));
 
+    // Create a new Cloud IoT client
+    const auth = await google.auth.getClient({
+      scopes: ['https://www.googleapis.com/auth/cloud-platform']
+    });
+    const client = google.cloudiot({
+      version: 'v1',
+      auth: auth
+    });
+
+    // Send the command to the devices
+    command.devices.forEach(device => {
+      console.log('Sending command ', commandParams, ' to device ', device.id, '...');
+      sendCommand(client, device.id, commandParams);
+    });
+    
     return {
       requestId: body.requestId,
       payload: {
